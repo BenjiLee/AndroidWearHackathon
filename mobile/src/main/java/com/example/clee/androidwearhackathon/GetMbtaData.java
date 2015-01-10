@@ -8,17 +8,6 @@ import java.net.URLConnection;
 
 public class GetMbtaData {
 
-    public String getData() throws IOException {
-        String response = getMbtaResponse("","");
-        return response;
-    }
-
-    public String getRoutes() throws IOException {
-        String response = getMbtaResponse("routes", "");
-        System.out.println(response);
-        return response;
-    }
-
     public String getMbtaResponse(String query, String details) throws IOException {
         String base_url = "http://realtime.mbta.com/developer/api/v2/";
         String api_key = "?api_key=wX9NwuHnZU2ToO7GmGR9uw";
@@ -30,6 +19,7 @@ public class GetMbtaData {
         BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         String line = "";
         while ((line = rd.readLine()) != null) {
+            System.out.println(line);
             return line;
         }
         return "none";

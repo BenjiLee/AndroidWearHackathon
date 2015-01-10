@@ -24,11 +24,18 @@ public class SubwayTab extends Activity {
     private GetMbtaData test = new GetMbtaData();
     private Spinner line_spinner, location_spinner;
 
+
     callAPI get_routes_call = new callAPI();
+    getStopLocation get_line_locations = new getStopLocation();
+
+    String query;
+    String details;
+
     EditText testing;
     String color_line;
     String line_string;
     JSONObject line_json;
+    String line_id;
 
 
     @Override
@@ -36,8 +43,8 @@ public class SubwayTab extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.subway_tab);
-        setLineSpinner();
-        setRadioListener();
+        query = "routes";
+        details = "";
         get_routes_call.execute(new String[]{""});
         testing = (EditText) findViewById(R.id.testviewjson);
 
@@ -56,10 +63,21 @@ public class SubwayTab extends Activity {
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                setUpLocationSpinner();
+                testing.setText("Radio");
+                color_line = line_spinner.getSelectedItem().toString();
+                getStopLocation();
             }
         });
     }
+
+    public void getStopLocation(){
+        testing.setText("get stop locations");
+        System.out.println("JSOO");
+
+        System.out.println(line_json);
+        setLineId();
+    }
+
 
     public void StringToJson() {
         try {
@@ -68,8 +86,7 @@ public class SubwayTab extends Activity {
         }
     }
 
-    public String getLineId() {
-        StringToJson();
+    public void setLineId() {
         try {
             JSONArray mode = line_json.getJSONArray("mode");
             int mode_length = mode.length();
@@ -79,13 +96,16 @@ public class SubwayTab extends Activity {
                 JSONObject line_type = mode.getJSONObject(i);
                 if (line_type.getString("mode_name").equals("Subway")) {
                     JSONArray line_type_routes = line_type.getJSONArray("route");
-
-
                     int line_type_routes_length = line_type_routes.length();
                     for (int j = 0; j < line_type_routes_length; j++) {
+
                         JSONObject route = line_type_routes.getJSONObject(j);
                         if (route.getString("route_name").equals(color_line)) {
-                            return route.getString("route_id");
+                            line_id = route.getString("route_id");
+                            query = "stopsbyroute";
+                            details = "&route=" + line_id;
+                            testing.setText(line_id);
+                            get_line_locations.execute(new String[]{""});;
                         }
                     }
                 }
@@ -93,13 +113,11 @@ public class SubwayTab extends Activity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return "";
     }
 
     public void setUpLocationSpinner() {
-        color_line = line_spinner.getSelectedItem().toString();
-        String line_id = getLineId();
-        testing.setText(line_id);
+
+        //Get the locations for the id
 
 
         location_spinner = (Spinner) findViewById(R.id.locationSpinner);
@@ -120,7 +138,7 @@ public class SubwayTab extends Activity {
         @Override
         protected String doInBackground(String... arg0) {
             try {
-                return test.getRoutes();
+                return test.getMbtaResponse(query, details);
             } catch (IOException e) {
                 testing.setText("Cannot get data");
                 return "err";
@@ -131,9 +149,31 @@ public class SubwayTab extends Activity {
         @Override
         protected void onPostExecute(String result) {
             line_string = result;
+            StringToJson();
+            setLineSpinner();
+            setRadioListener();
+        }
+    }
+
+    public class getStopLocation extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... arg0) {
+            try {
+                return test.getMbtaResponse(query, details);
+            } catch (IOException e) {
+                return "err";
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            System.out.println(result);
+            line_string = result;
+            StringToJson();
+            setUpLocationSpinner();
         }
 
     }
-
-
 }
+
