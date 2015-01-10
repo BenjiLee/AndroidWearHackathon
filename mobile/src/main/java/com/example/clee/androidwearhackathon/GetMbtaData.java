@@ -9,18 +9,28 @@ import java.net.URLConnection;
 public class GetMbtaData {
 
     public String getData() throws IOException {
-        String response = getMbtaResponse();
+        String response = getMbtaResponse("","");
         return response;
     }
 
-    public String getMbtaResponse() throws IOException {
-        URL url = new URL("http://realtime.mbta.com/developer/api/v2/stopsbylocation?api_key=wX9NwuHnZU2ToO7GmGR9uw&lat=42.346961&lon=-71.076640&format=json");
+    public String getRoutes() throws IOException {
+        String response = getMbtaResponse("routes", "");
+        System.out.println(response);
+        return response;
+    }
+
+    public String getMbtaResponse(String query, String details) throws IOException {
+        String base_url = "http://realtime.mbta.com/developer/api/v2/";
+        String api_key = "?api_key=wX9NwuHnZU2ToO7GmGR9uw";
+        String format = "&format=json";
+        String entire_url = base_url + query + api_key + details + format;
+        URL url = new URL(entire_url);
         URLConnection conn = url.openConnection();
         // Get the response
         BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         String line = "";
         while ((line = rd.readLine()) != null) {
-            System.out.println(line);
+            return line;
         }
         return "none";
     }
