@@ -4,5 +4,12 @@
     <string name="app_name">AndroidWearHackathon</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string-array name="subways">
+        <item>Red Line</item>
+        <item>Green Line</item>
+        <item>Orange Line</item>
+        <item>Blue Line</item>
+
+    </string-array>
 
 </resources>
