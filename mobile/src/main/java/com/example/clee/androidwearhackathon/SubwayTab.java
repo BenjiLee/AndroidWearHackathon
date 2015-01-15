@@ -16,17 +16,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by clee on 1/10/15.
- */
 public class SubwayTab extends Activity {
 
     private GetMbtaData test = new GetMbtaData();
     private Spinner line_spinner, location_spinner;
-
-
-    callAPI get_routes_call = new callAPI();
-    getStopLocation get_line_locations = new getStopLocation();
 
     String query;
     String details;
@@ -45,9 +38,8 @@ public class SubwayTab extends Activity {
         setContentView(R.layout.subway_tab);
         query = "routes";
         details = "";
-        get_routes_call.execute(new String[]{""});
+        new DownloadApiTask().execute(query, details);
         testing = (EditText) findViewById(R.id.testviewjson);
-
     }
 
     public void setLineSpinner() {
@@ -63,7 +55,6 @@ public class SubwayTab extends Activity {
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                testing.setText("Radio");
                 color_line = line_spinner.getSelectedItem().toString();
                 getStopLocation();
             }
@@ -71,10 +62,6 @@ public class SubwayTab extends Activity {
     }
 
     public void getStopLocation(){
-        testing.setText("get stop locations");
-        System.out.println("JSOO");
-
-        System.out.println(line_json);
         setLineId();
     }
 
@@ -105,7 +92,7 @@ public class SubwayTab extends Activity {
                             query = "stopsbyroute";
                             details = "&route=" + line_id;
                             testing.setText(line_id);
-                            get_line_locations.execute(new String[]{""});;
+                            new callApiLocation().execute(new String[]{""});;
                         }
                     }
                 }
@@ -118,8 +105,6 @@ public class SubwayTab extends Activity {
     public void setUpLocationSpinner() {
 
         //Get the locations for the id
-
-
         location_spinner = (Spinner) findViewById(R.id.locationSpinner);
         List<String> list = new ArrayList<String>();
         list.add(color_line);
@@ -134,9 +119,12 @@ public class SubwayTab extends Activity {
     }
 
 
-    public class callAPI extends AsyncTask<String, Void, String> {
+    public class DownloadApiTask extends AsyncTask<String, Void, String> {
+
         @Override
-        protected String doInBackground(String... arg0) {
+        protected String doInBackground(String... params) {
+            String query = params[0];
+            String details = params[1];
             try {
                 return test.getMbtaResponse(query, details);
             } catch (IOException e) {
@@ -155,7 +143,7 @@ public class SubwayTab extends Activity {
         }
     }
 
-    public class getStopLocation extends AsyncTask<String, Void, String> {
+    public class callApiLocation extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... arg0) {
             try {
